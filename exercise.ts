@@ -1,3 +1,1 @@
-export interface Exercise {
-    run(input: Blob): Promise<void>;
-}
+export type Exercise = (input: Blob) => Promise<void>

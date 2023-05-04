@@ -1,4 +1,4 @@
-import { Day7 } from "./days/day7";
 import { runDay } from "./util";
+import { day7 } from "./days/day7";
 
-runDay(Day7);
+runDay(day7);
