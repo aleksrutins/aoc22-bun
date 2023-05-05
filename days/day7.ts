@@ -1,3 +1,5 @@
+import * as path from 'node:path'
+
 type FileInfo = {name: string, size: number}
 type LsFile = ['dir', string] | ['file', FileInfo]
 type CdCommand = ['cd', string]
@@ -19,14 +21,12 @@ function dirSize(dir: FileTreeDir): number {
 
          + dir[2].filter(isDir)
                  .map(dirSize)
-                 .map(s => (console.log(s),s))
                  .reduce((prev, current) => prev + current, 0);
 }
 function dirsUnderSize(dir: FileTreeDir, max: number): number {
     return dir[2].filter(isDir)
                  .map(dirSize)
                  .filter(size => size <= max)
-                 .map(s => (console.log(s),s))
                  .reduce((prev, cur) => prev + cur, 0)
 
          + dir[2].filter(isDir)
@@ -48,15 +48,14 @@ function treeify(commands: Command[]): FileTreeDir {
         }
         break;
       case "cd":
-        if(cmd[0][1] == '..') {
-
+        if(cmd[0][1] != '..') {
+          let newTree: FileTreeDir | undefined;
+          if((newTree = treeFor(currentDir)[2].find((f => isDir(f) && f[1] == cmd[0][1]) as (f: FileTree) => f is FileTreeDir)) == undefined) {
+              newTree = ['dir', cmd[0][1], []];
+              treeFor(currentDir)[2].push(newTree);
+          }
         }
-        let newTree: FileTreeDir | undefined;
-        if((newTree = treeFor(currentDir)[2].find((f => isDir(f) && f[1] == cmd[0][1]) as (f: FileTree) => f is FileTreeDir)) == undefined) {
-            newTree = ['dir', cmd[0][1], []];
-            treeFor(currentDir)[2].push(newTree);
-        }
-        currentDir = path;
+        currentDir = path.join(currentDir, cmd[0][1]);
         break;
     }
   }
@@ -101,6 +100,5 @@ export async function day7(input: Blob) {
     }
 
     const files = treeify(commands);
-    console.log(files);
     console.log("Part 1: " + dirsUnderSize(files, 100000))
 }
